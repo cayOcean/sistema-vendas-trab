@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Novo Pedido</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+        }
+        body { background-color: #f4f6f9; }
+
+        .card-custom {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: white;
+            border-radius: 10px;
+        }
+
+        .text-header {
+            color: var(--primary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .btn-custom-accent {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+        }
+        .btn-custom-accent:hover { background-color: #d35400; color: white; }
+
+        /* Estilo para o Select ficar mais bonito */
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(44, 62, 80, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6"> <div class="card-custom p-4">
+
+                <div class="d-flex justify-content-between align-items-center text-header">
+                    <h2 class="h3 mb-0"><i class="bi bi-cart-plus-fill"></i> Novo Pedido</h2>
+                    
+                    <a th:href="@{/pedidos}" class="btn-close" aria-label="Close"></a>
+                </div>
+
+                <div class="alert alert-info border-0 bg-opacity-10 d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                    <div>
+                        <strong>Passo 1 de 2:</strong><br>
+                        Selecione o cliente para iniciar a abertura do pedido. Em seguida, você poderá adicionar os produtos.
+                    </div>
+                </div>
+
+                <form th:action="@{/pedidos/novo}" method="post">
+                    
+                    <div class="mb-4">
+                        <label for="clienteId" class="form-label fw-bold" style="color: var(--primary-color);">
+                            <i class="bi bi-person-badge"></i> Cliente Solicitante
+                        </label>
+                        
+                        <select class="form-select form-select-lg" id="clienteId" name="clienteId" required>
+                            <option value="" selected disabled>Selecione um cliente na lista...</option>
+                            <option th:each="cliente : ${clientes}"
+                                    th:value="${cliente.id}"
+                                    th:text="${cliente.nome} + ' (CPF: ' + ${cliente.cpf} + ')'">
+                            </option>
+                        </select>
+                        <div class="form-text mt-2">
+                            Não encontrou o cliente? <a th:href="@{/clientes/novo}" class="text-decoration-none">Cadastre um novo aqui</a>.
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-custom-accent btn-lg shadow-sm">
+                            <i class="bi bi-arrow-right-circle"></i> Continuar para Itens
+                        </button>
+                        <a th:href="@{/pedidos}" class="btn btn-outline-secondary">
+                            Cancelar Operação
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

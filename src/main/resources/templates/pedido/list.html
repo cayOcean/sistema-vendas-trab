@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Pedidos</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+        }
+        body { background-color: #f4f6f9; }
+        
+        .card-custom {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: white;
+            border-radius: 10px;
+        }
+        
+        .table-header-custom {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Badge personalizada para status */
+        .badge-status {
+            font-size: 0.85em;
+            padding: 6px 10px;
+            border-radius: 20px; /* Bordas arredondadas (Pill shape) */
+        }
+        
+        .nav-pills .nav-link.active { background-color: var(--primary-color); }
+        .nav-pills .nav-link { color: var(--primary-color); }
+
+        .btn-custom-accent {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+        }
+        .btn-custom-accent:hover { background-color: #d35400; color: white; }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+
+    <div class="card-custom p-4">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <h2 style="color: var(--primary-color); font-weight: bold;">
+                <i class="bi bi-cart-check"></i> Pedidos
+            </h2>
+            
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm" title="Sair do Sistema">
+                    <i class="bi bi-box-arrow-right"></i> Sair
+                </button>
+            </form>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/produtos}">Produtos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/clientes}">Clientes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Pedidos</a>
+                </li>
+            </ul>
+
+            <a class="btn btn-custom-accent shadow-sm" th:href="@{/pedidos/novo}">
+                <i class="bi bi-plus-lg"></i> Novo Pedido
+            </a>
+        </div>
+
+        <div th:if="${pedidos.empty}" class="alert alert-light border text-center py-5">
+            <i class="bi bi-cart-x display-6 text-muted mb-3 d-block"></i>
+            <span class="text-muted">Nenhum pedido registrado no sistema.</span>
+        </div>
+
+        <div class="table-responsive" th:unless="${pedidos.empty}">
+            <table class="table table-hover align-middle">
+                <thead class="table-header-custom">
+                <tr>
+                    <th class="ps-3">#ID</th>
+                    <th>Cliente</th>
+                    <th>Data do Pedido</th>
+                    <th class="text-end">Total</th>
+                    <th class="text-center">Situação</th>
+                    <th class="text-center pe-3">Gerenciar</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="pedido : ${pedidos}">
+                    <td class="ps-3 fw-bold text-secondary" th:text="'#' + ${pedido.id}"></td>
+                    
+                    <td th:text="${pedido.cliente.nome}"></td>
+                    
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span th:text="${#temporals.format(pedido.dataPedido, 'dd/MM/yyyy')}"></span>
+                            <small class="text-muted" th:text="${#temporals.format(pedido.dataPedido, 'HH:mm')} + 'h'"></small>
+                        </div>
+                    </td>
+
+                    <td class="text-end fw-bold text-dark" th:text="${#numbers.formatCurrency(pedido.valorTotal)}"></td>
+                    
+                    <td class="text-center">
+                        <span th:if="${pedido.status.name() == 'ATIVO'}" class="badge bg-success badge-status bg-opacity-75">
+                            <i class="bi bi-check-circle-fill me-1"></i> Ativo
+                        </span>
+                        <span th:if="${pedido.status.name() == 'CANCELADO'}" class="badge bg-danger badge-status bg-opacity-75">
+                            <i class="bi bi-x-circle-fill me-1"></i> Cancelado
+                        </span>
+                    </td>
+
+                    <td class="text-center pe-3">
+                        <div class="btn-group btn-group-sm">
+                            <a class="btn btn-outline-info" th:href="@{/pedidos/detalhes/{id}(id=${pedido.id})}" title="Ver Detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+
+                            <th:block th:if="${pedido.status.name() == 'ATIVO'}">
+                                <a class="btn btn-outline-primary" th:href="@{/pedidos/edit/{id}(id=${pedido.id})}" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a class="btn btn-outline-danger" th:href="@{/pedidos/cancelar/{id}(id=${pedido.id})}" 
+                                   title="Cancelar Pedido" onclick="return confirm('Deseja realmente cancelar este pedido?');">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            </th:block>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

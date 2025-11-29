@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprovante do Pedido</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #555;
+        }
+
+        /* Estilo de Folha de Papel (Invoice) */
+        .invoice-card {
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            border-radius: 0; /* Bordas retas parecem mais papel */
+            border-top: 5px solid var(--accent-color); /* Detalhe colorido no topo */
+        }
+
+        .invoice-header {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+
+        .client-info h5 {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .table-invoice th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            border-top: none;
+            font-weight: 600;
+        }
+        
+        /* Apenas para impressão: esconde botões */
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .invoice-card { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5 mb-5">
+
+    <!-- Barra de Ações (Voltar / Imprimir) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <a class="btn btn-outline-secondary" th:href="@{/pedidos}">
+            <i class="bi bi-arrow-left"></i> Voltar à Lista
+        </a>
+        
+        <!-- Botão Extra: Imprimir -->
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="bi bi-printer-fill"></i> Imprimir Comprovante
+        </button>
+    </div>
+
+    <!-- O Documento (Invoice) -->
+    <div class="card invoice-card p-5">
+        
+        <!-- Cabeçalho do Documento -->
+        <div class="invoice-header row justify-content-between align-items-center">
+            <div class="col-md-6">
+                <h2 class="text-uppercase text-secondary mb-0">Pedido <span class="fw-bold text-dark" th:text="'#' + ${pedido.id}"></span></h2>
+                <span class="text-muted small">Gerado em: <span th:text="${#temporals.format(pedido.dataPedido, 'dd/MM/yyyy às HH:mm')}"></span></span>
+            </div>
+            
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <!-- Status como "Carimbo" -->
+                <span th:if="${pedido.status.name() == 'ATIVO'}" class="badge bg-success fs-6 px-3 py-2">
+                    <i class="bi bi-check2-circle"></i> CONFIRMADO
+                </span>
+                <span th:if="${pedido.status.name() == 'CANCELADO'}" class="badge bg-danger fs-6 px-3 py-2">
+                    <i class="bi bi-x-circle"></i> CANCELADO
+                </span>
+            </div>
+        </div>
+
+        <!-- Dados do Cliente e Empresa -->
+        <div class="row mb-5">
+            <div class="col-md-6 client-info">
+                <h5 class="mb-3">Dados do Cliente</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-1">
+                        <i class="bi bi-person-fill text-muted me-2"></i>
+                        <strong th:text="${pedido.cliente.nome}"></strong>
+                    </li>
+                    <li class="mb-1">
+                        <i class="bi bi-card-heading text-muted me-2"></i>
+                        CPF: <span th:text="${pedido.cliente.cpf}"></span>
+                    </li>
+                    <li class="mb-1">
+                        <i class="bi bi-envelope text-muted me-2"></i>
+                        <span th:text="${pedido.cliente.email}"></span>
+                    </li>
+                </ul>
+            </div>
+            <!-- Espaço reservado para dados da sua "Loja" se quiser inventar -->
+        </div>
+
+        <!-- Tabela de Itens Limpa -->
+        <div class="table-responsive mb-4">
+            <table class="table table-invoice align-middle">
+                <thead>
+                <tr>
+                    <th style="width: 50%">Descrição do Produto</th>
+                    <th class="text-center">Qtd.</th>
+                    <th class="text-end">Valor Unit.</th>
+                    <th class="text-end">Total Item</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${pedido.itens}">
+                    <td>
+                        <span class="fw-bold text-dark" th:text="${item.produto.nome}"></span><br>
+                        <small class="text-muted" th:text="${item.produto.descricao}"></small>
+                    </td>
+                    <td class="text-center" th:text="${item.quantidade}"></td>
+                    <td class="text-end" th:text="${#numbers.formatCurrency(item.precoUnitario)}"></td>
+                    <td class="text-end fw-bold" th:text="${#numbers.formatCurrency(item.precoUnitario * item.quantidade)}"></td>
+                </tr>
+                
+                <!-- Feedback se vazio -->
+                <tr th:if="${pedido.itens.empty}">
+                    <td colspan="4" class="text-center py-4 text-muted fst-italic">
+                        Nenhum item registrado neste pedido.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Rodapé com Total Geral -->
+        <div class="row justify-content-end">
+            <div class="col-md-5 col-lg-4">
+                <div class="bg-light p-3 rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0 text-secondary">Total Geral:</span>
+                        <span class="h3 mb-0 fw-bold" style="color: var(--primary-color);" 
+                              th:text="${#numbers.formatCurrency(pedido.valorTotal)}">
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé Fictício do Documento -->
+        <div class="mt-5 pt-4 border-top text-center text-muted small">
+            <p>Obrigado pela preferência!</p>
+        </div>
+
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

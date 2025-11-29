@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Clientes</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+        }
+        body { background-color: #f4f6f9; }
+
+        .card-custom {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: white;
+            border-radius: 10px;
+        }
+
+        .table-header-custom {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-custom-accent {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+        }
+        .btn-custom-accent:hover { background-color: #d35400; color: white; }
+        
+        /* Abas de Navegação */
+        .nav-pills .nav-link.active { background-color: var(--primary-color); }
+        .nav-pills .nav-link { color: var(--primary-color); }
+        
+        /* Estilo para Avatar (Iniciais do nome) */
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            background-color: #e9ecef;
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+
+    <div class="card-custom p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <h2 style="color: var(--primary-color); font-weight: bold;">
+                <i class="bi bi-people-fill"></i> Clientes
+            </h2>
+            <a class="btn btn-custom-accent shadow-sm" th:href="@{/clientes/novo}">
+                <i class="bi bi-person-plus-fill"></i> Novo Cliente
+            </a>
+        </div>
+
+        <div class="mb-4">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/produtos}">Produtos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Clientes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/pedidos}">Pedidos</a>
+                </li>
+            </ul>
+        </div>
+
+        <div th:if="${clientes.empty}" class="alert alert-light border text-center py-5">
+            <i class="bi bi-emoji-frown display-6 text-muted mb-3 d-block"></i>
+            <span class="text-muted">Nenhum cliente cadastrado na base de dados.</span>
+        </div>
+
+        <div class="table-responsive" th:unless="${clientes.empty}">
+            <table class="table table-hover align-middle">
+                <thead class="table-header-custom">
+                <tr>
+                    <th class="ps-3">Cliente / CPF</th>
+                    <th>Contatos</th>
+                    <th>Endereço Completo</th>
+                    <th class="text-center pe-3">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="cliente : ${clientes}">
+                    
+                    <td class="ps-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" th:text="${cliente.nome}"></div>
+                                <div class="small text-muted font-monospace" th:text="${cliente.cpf}"></div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="mb-1">
+                                <i class="bi bi-envelope text-primary me-1"></i>
+                                <span th:text="${cliente.email}"></span>
+                            </span>
+                            <span class="small text-muted">
+                                <i class="bi bi-telephone me-1"></i>
+                                <span th:text="${cliente.telefone}"></span>
+                            </span>
+                        </div>
+                    </td>
+
+                    <td style="max-width: 300px;">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-geo-alt-fill text-danger me-2 mt-1"></i>
+                            <div>
+                                <strong class="d-block text-secondary" style="font-size: 0.95rem;">
+                                    <span th:text="${cliente.logradouro}"></span>, 
+                                    <span th:text="${cliente.numero}"></span>
+                                    <span th:if="${cliente.complemento != null && !cliente.complemento.isEmpty()}" 
+                                          th:text="'(' + ${cliente.complemento} + ')'"></span>
+                                </strong>
+                                <small class="text-muted">
+                                    <span th:text="${cliente.bairro}"></span> • 
+                                    <span th:text="${cliente.cidade}"></span>/<span th:text="${cliente.uf}"></span> • 
+                                    CEP: <span th:text="${cliente.cep}"></span>
+                                </small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="text-center pe-3">
+                        <div class="btn-group btn-group-sm">
+                            <a class="btn btn-outline-primary" th:href="@{/clientes/edit/{id}(id=${cliente.id})}" title="Editar Dados">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a class="btn btn-outline-danger" th:href="@{/clientes/delete/{id}(id=${cliente.id})}" title="Excluir Cliente"
+                               onclick="return confirm('Deseja remover este cliente e todo seu histórico?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

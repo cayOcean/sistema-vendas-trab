@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${produto.id == null} ? 'Cadastro de Produto' : 'Edição de Produto'">Gerenciamento</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50; /* Azul Navy */
+            --accent-color: #e67e22;  /* Laranja */
+        }
+
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .card-custom {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: white;
+            border-radius: 10px;
+        }
+
+        /* Estilo dos Labels para dar destaque */
+        .form-label {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Foco nos inputs com a cor do tema */
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(44, 62, 80, 0.25);
+        }
+
+        .btn-custom-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            padding: 10px 25px; /* Botão mais robusto */
+        }
+        .btn-custom-primary:hover {
+            background-color: #1a252f;
+            color: white;
+        }
+
+        .text-header {
+            color: var(--primary-color);
+            font-weight: bold;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8"> <div class="card-custom p-5">
+                
+                <h2 class="text-header">
+                    <i class="bi" th:classappend="${produto.id == null} ? 'bi-plus-circle' : 'bi-pencil-square'"></i>
+                    <span th:text="${produto.id == null} ? 'Novo Produto' : 'Editar Produto'"></span>
+                </h2>
+
+                <form th:action="@{${produto.id == null} ? '/produtos/novo' : '/produtos/edit/' + ${produto.id}}" th:object="${produto}" method="post">
+                    
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="mb-4">
+                        <label for="nome" class="form-label">Nome do Produto</label>
+                        <input type="text" class="form-control form-control-lg" id="nome" th:field="*{nome}" placeholder="Ex: Notebook Gamer">
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="descricao" class="form-label">Descrição Detalhada</label>
+                        <textarea class="form-control" id="descricao" th:field="*{descricao}" rows="3" placeholder="Detalhes técnicos do produto..."></textarea>
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="preco" class="form-label"><i class="bi bi-currency-dollar"></i> Preço</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" step="0.01" class="form-control" id="preco" th:field="*{preco}" placeholder="0,00">
+                            </div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('preco')}" th:errors="*{preco}"></div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label for="quantidadeEmEstoque" class="form-label"><i class="bi bi-box-seam"></i> Estoque Atual</label>
+                            <input type="number" class="form-control" id="quantidadeEmEstoque" th:field="*{quantidadeEmEstoque}">
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('quantidadeEmEstoque')}" th:errors="*{quantidadeEmEstoque}"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <a th:href="@{/produtos}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-custom-primary">
+                            <i class="bi bi-check-lg"></i> Salvar Dados
+                        </button>
+                    </div>
+
+                </form>
+            </div> </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

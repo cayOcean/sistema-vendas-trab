@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Estoque</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50; /* Azul Navy Escuro */
+            --accent-color: #e67e22;  /* Laranja Queimado */
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            background-color: #f4f6f9; /* Fundo levemente cinza para destacar o conteúdo */
+        }
+
+        .card-custom {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave */
+            background-color: white;
+            border-radius: 10px;
+        }
+
+        .table-header-custom {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-custom-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-custom-primary:hover {
+            background-color: #1a252f;
+            color: white;
+        }
+
+        .btn-custom-accent {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+        }
+        .btn-custom-accent:hover {
+            background-color: #d35400;
+            color: white;
+        }
+        
+        /* Estilo para as abas de navegação */
+        .nav-pills .nav-link.active {
+            background-color: var(--primary-color);
+        }
+        .nav-pills .nav-link {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+
+    <div class="card-custom p-4">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <h2 style="color: var(--primary-color); font-weight: bold;">
+                <i class="bi bi-box-seam"></i> Produtos
+            </h2>
+            <a class="btn btn-custom-accent shadow-sm" th:href="@{/produtos/novo}">
+                <i class="bi bi-plus-lg"></i> Novo Produto
+            </a>
+        </div>
+
+        <div class="mb-4">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Produtos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/clientes}">Clientes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/pedidos}">Pedidos</a>
+                </li>
+            </ul>
+        </div>
+
+        <div th:if="${produtos.empty}" class="alert alert-light border text-center py-4" role="alert">
+            <h4 class="text-muted"><i class="bi bi-inbox"></i></h4>
+            <p class="text-muted mb-0">Nenhum produto cadastrado no momento.</p>
+        </div>
+
+        <div class="table-responsive" th:unless="${produtos.empty}">
+            <table class="table table-hover align-middle">
+                <thead class="table-header-custom"> <tr>
+                    <th class="ps-3">Produto</th>
+                    <th>Descrição</th>
+                    <th class="text-end">Preço</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center pe-3">Gerenciar</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="produto : ${produtos}">
+                    <td class="ps-3 fw-bold text-dark" th:text="${produto.nome}"></td>
+                    <td class="text-secondary small" th:text="${produto.descricao}"></td>
+                    <td class="text-end fw-bold" style="color: var(--primary-color);" th:text="${#numbers.formatCurrency(produto.preco)}"></td>
+                    
+                    <td class="text-center">
+                        <span th:class="${produto.quantidadeEmEstoque > 10} ? 'badge bg-success bg-opacity-75' : 
+                                       (${produto.quantidadeEmEstoque > 0} ? 'badge bg-warning text-dark' : 'badge bg-danger')"
+                              th:text="${produto.quantidadeEmEstoque > 0 ? produto.quantidadeEmEstoque + ' unid.' : 'Esgotado'}">
+                        </span>
+                    </td>
+
+                    <td class="text-center pe-3">
+                        <a class="text-primary me-2" th:href="@{/produtos/edit/{id}(id=${produto.id})}" title="Editar" style="text-decoration: none;">
+                            <i class="bi bi-pencil-fill fs-5"></i>
+                        </a>
+                        <a class="text-danger" th:href="@{/produtos/delete/{id}(id=${produto.id})}" title="Excluir"
+                           onclick="return confirm('Confirmar exclusão?');" style="text-decoration: none;">
+                            <i class="bi bi-trash-fill fs-5"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div> </div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
